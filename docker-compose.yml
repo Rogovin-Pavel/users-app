@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   db:
-    container_name: nest-course
+    container_name: users-app
     image: postgres:14.0-alpine
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=nest-course
+      - POSTGRES_DB=users-app
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
