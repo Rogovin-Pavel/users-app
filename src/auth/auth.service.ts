@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +15,7 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService {
   constructor(
+    private logger: Logger,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
@@ -29,7 +31,8 @@ export class AuthService {
       throw new HttpException('User exists', HttpStatus.BAD_REQUEST);
     }
     const password = await bcrypt.hash(userDto.password, +process.env.SALT);
-    const user = await this.usersService.createUser({ ...userDto, password });
+    const withHashedPass = { ...userDto, password };
+    const user = await this.usersService.createUser(withHashedPass);
     return this.generateToken(user);
   }
 
@@ -43,6 +46,7 @@ export class AuthService {
 
   private async validateUser(userDto: CreateUserDto) {
     const user = await this.usersService.getUserByEmail(userDto.email);
+
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password,
